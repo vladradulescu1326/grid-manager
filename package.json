@@ -1,0 +1,11 @@
+{
+  "name": "md-grid-manager",
+  "version": "0.1.0",
+  "description": "Common action wrapper for ag-grid",
+  "main": "gridManager.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Catalin Mustata",
+  "license": "GPL-3.0"
+}

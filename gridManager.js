@@ -1,4 +1,4 @@
-angular.module('gridManager',[]).service('gridManager', function() {
+angular.module('gridManager',[]).service('gridManager', function($compile) {
 
     var self = this;
 
@@ -7,43 +7,44 @@ angular.module('gridManager',[]).service('gridManager', function() {
     var _selectAllInput = "<input type='checkbox' name='selectAll' ng-model='gridManager.selectAll' ng-change='gridManager.didSelectAll()'></input>";
 
     //Filter Template
-    var _filterTemplate = "<input type='text' class='table-filter' placeholder='Filter Users...'" +
-                        "onchange='gridManager.onFilterChanged(this.value)" +
-                        "oninput='gridManager.onFilterChanged(this.value)" +
-                        "onpaste='gridManager.onFilterChanged(this.value)'>";
+    var _filterTemplate = "<input type='text' class='table-filter' placeholder='Filter Users...'></input>";
 
-    function GridManager() {
+    function GridManager(scope, gridOptions, tableId, doesNeedSelectAll, doesNeedQuickFilter, quickFilterPlaceHolder, customOptions) {
         var self = this;
 
         var _gridOptions = {};
-        var _doesNeedSelectAll = false;
+        var _doesNeedSelectAll = doesNeedSelectAll;
+        var _doesNeedQuickFilter = doesNeedQuickFilter;
         var _ignoreSelectEventFlag = false;
+        var _scope = scope;
+        var _tableID = tableId;
 
         self.selectAll = false;
 
-        self.injectIn = function(gridOptions, tableId, doesNeedSelectAll, doesNeedQuickFilter, customOptions) {
+        if (angular.isUndefined(gridOptions)) {
+            console.log("Did not receive a valid gridOptions parameter. Aborting.");
+            return null;
+        }
 
-            _gridOptions = gridOptions;
+        _gridOptions = gridOptions;
 
-            _gridOptions.onGridReady = _gridReady;
-            _doesNeedSelectAll = doesNeedSelectAll;
+        _gridOptions.onGridReady = _gridReady;
+        _doesNeedSelectAll = doesNeedSelectAll;
 
-            if (doesNeedSelectAll) {
-                gridOptions.columnDefs.shift({headerName: "", checkboxSelection: true, width: 20, suppressMenu: true, headerCellTemplate: _inputTemplate});
-            }
+        if (doesNeedSelectAll) {
+            _gridOptions.columnDefs.unshift({headerName: "", checkboxSelection: true, width: 20, suppressMenu: true, headerCellTemplate: _selectAllContainer});
+        }
 
-            if (doesNeedQuickFilter) {
-                gridOptions.enableFilter = true;
-                _injectFilter();
-            }
+        //Populate options with default values
+        _addDefaults();
 
-            //Populate options with default values
-            _addDefaults();
-
-            //Merge custom options over defaults
+        //Merge custom options over defaults
+        if (angular.isDefined(customOptions)) {
             angular.extend(_gridOptions, customOptions);
-        };
+        }
 
+
+        // PUBLIC METHODS ======================================================
         self.setRowSelectedCallback = function(callback) {
             _selectRowCallback = callback;
         }
@@ -56,7 +57,7 @@ angular.module('gridManager',[]).service('gridManager', function() {
             _changedSelectionCallback = callback;
         }
 
-        // PRIVATE FUNCTIONS
+        // PRIVATE FUNCTIONS ===================================================
 
         function _didSelectAll() {
             _ignoreSelectEventFlag = true;
@@ -72,25 +73,33 @@ angular.module('gridManager',[]).service('gridManager', function() {
         }
 
         function _onFilterChanged(searchText) {
-            _gridOptions.api.setQuickFilter(searchText);
+            if (angular.isDefined(_gridOptions.api)) {
+                _gridOptions.api.setQuickFilter(searchText);
+            }
         }
 
         function _addDefaults() {
             _gridOptions.enableColResize =  false;
-            _gridOptions.rowSelection= 'multiple';
-            _gridOptions.suppressMenuColumnPanel= true;
-            _gridOptions.suppressMenuFilterPanel= false;
-            _gridOptions.suppressMenuMainPanel= true;
-            _gridOptions.suppressContextMenu= true;
-            _gridOptions.enableSorting= true;
+            _gridOptions.rowSelection = 'multiple';
+            _gridOptions.suppressMenuColumnPanel = true;
+            _gridOptions.suppressMenuFilterPanel = false;
+            _gridOptions.suppressMenuMainPanel = true;
+            _gridOptions.suppressContextMenu = true;
+            _gridOptions.enableSorting = true;
         }
 
         function _injectFilter() {
 
-            var filterInput = $compile(_filterTemplate)($scope);
+            var filterInput = $compile(_filterTemplate)(_scope);
             var tableFilterID = "filter-table-" + _tableID;
             filterInput.attr('id', tableFilterID);
+
+            var searchModel = "searchText" + _tableID.replace("-", "");
+            filterInput.attr('ng-model', searchModel);
+            filterInput = $compile(filterInput)(_scope);
             var tableElement = angular.element(document.getElementById(_tableID));
+
+            _scope.$watch(searchModel, _onFilterChanged);
 
             tableElement.before(filterInput);
         }
@@ -98,10 +107,15 @@ angular.module('gridManager',[]).service('gridManager', function() {
         function _gridReady() {
             //inject a checkbox that selects everything into the div we placed in the header
             if (_doesNeedSelectAll) {
-                var selectAll = $compile(_selectAllInput)($scope);
+                var selectAll = $compile(_selectAllInput)(_scope);
                 angular
-                    .element(document.selectElementById("select-all-users"))
+                    .element(document.getElementById("select-all-users"))
                     .append(selectAll);
+            }
+
+            if (_doesNeedQuickFilter) {
+                _gridOptions.enableFilter = true;
+                _injectFilter();
             }
         }
 
@@ -117,7 +131,7 @@ angular.module('gridManager',[]).service('gridManager', function() {
             }
 
             if (row.node.selected && angular.isDefined(_selectRowCallback)) {
-                _selectRowCallback();
+                _selectRowCallback(row);
             }
         }
 
@@ -127,15 +141,17 @@ angular.module('gridManager',[]).service('gridManager', function() {
                 _changedSelectionCallback();
 
                 if (!_ignoreSelectEventFlag) {
-                    $scope.$apply();
+                    _scope.$apply();
                 }
             }
         }
     }
 
-    self.getManager = function() {
+    // API =====================================================================
 
-        return new GridManager();
+    self.getManager = function(scope, gridOptions, tableId, doesNeedSelectAll, doesNeedQuickFilter, quickFilterPlaceHolder, customOptions) {
+
+        return new GridManager(scope, gridOptions, tableId, doesNeedSelectAll, doesNeedQuickFilter, quickFilterPlaceHolder, customOptions);
 
     }
 

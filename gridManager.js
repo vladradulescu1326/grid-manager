@@ -21,6 +21,10 @@ angular.module('gridManager',[]).service('gridManager', function($compile) {
         var _selectAllModel = "";
         var _quickFilterPlaceHolder = quickFilterPlaceHolder;
 
+        var _clickRowCallback;
+        var _selectRowCallback;
+        var _changedSelectionCallback;
+
         self.selectAll = false;
 
         if (angular.isUndefined(gridOptions)) {
@@ -31,6 +35,10 @@ angular.module('gridManager',[]).service('gridManager', function($compile) {
         _gridOptions = gridOptions;
 
         _gridOptions.onGridReady = _gridReady;
+        _gridOptions.onRowSelected = _didSelectRow;
+        _gridOptions.onSelectionChanged = _didChangeSelection;
+        _gridOptions.onRowClicked = _didClickRow;
+
         _doesNeedSelectAll = doesNeedSelectAll;
 
         if (doesNeedSelectAll) {

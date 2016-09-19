@@ -4,10 +4,10 @@ angular.module('gridManager',[]).service('gridManager', function($compile) {
 
     //Select All checkbox templates
     var _selectAllContainer = "<div id='select-all-users'></div>";
-    var _selectAllInput = "<input type='checkbox' name='selectAll' ng-model='gridManager.selectAll' ng-change='gridManager.didSelectAll()'></input>";
+    var _selectAllInput = "<input type='checkbox'></input>";
 
     //Filter Template
-    var _filterTemplate = "<input type='text' class='table-filter' placeholder='Filter Users...'></input>";
+    var _filterTemplate = "<input type='text' class='table-filter'></input>";
 
     function GridManager(scope, gridOptions, tableId, doesNeedSelectAll, doesNeedQuickFilter, quickFilterPlaceHolder, customOptions) {
         var self = this;
@@ -18,6 +18,8 @@ angular.module('gridManager',[]).service('gridManager', function($compile) {
         var _ignoreSelectEventFlag = false;
         var _scope = scope;
         var _tableID = tableId;
+        var _selectAllModel = "";
+        var _quickFilterPlaceHolder = quickFilterPlaceHolder;
 
         self.selectAll = false;
 
@@ -61,13 +63,14 @@ angular.module('gridManager',[]).service('gridManager', function($compile) {
 
         function _didSelectAll() {
             _ignoreSelectEventFlag = true;
-            if (self.selectAll) {
+            var selected = _scope[_selectAllModel];
+            if (selected) {
               _gridOptions.api.forEachNodeAfterFilter(function(node) {
                   node.setSelected(true);
               });
             } else {
                 _ignoreSelectEventFlag = true;
-                self.userGridOptions.api.deselectAll();
+                _gridOptions.api.deselectAll();
             }
             _ignoreSelectEventFlag = false;
         }
@@ -90,27 +93,38 @@ angular.module('gridManager',[]).service('gridManager', function($compile) {
 
         function _injectFilter() {
 
-            var filterInput = $compile(_filterTemplate)(_scope);
+            var filterInput = angular.element(_filterTemplate);
             var tableFilterID = "filter-table-" + _tableID;
-            filterInput.attr('id', tableFilterID);
-
             var searchModel = "searchText" + _tableID.replace("-", "");
+            filterInput.attr('id', tableFilterID);
             filterInput.attr('ng-model', searchModel);
+            filterInput.attr('placeholder', _quickFilterPlaceHolder);
             filterInput = $compile(filterInput)(_scope);
-            var tableElement = angular.element(document.getElementById(_tableID));
+
+            angular
+                .element(document.getElementById(_tableID))
+                .before(filterInput);
 
             _scope.$watch(searchModel, _onFilterChanged);
+        }
 
-            tableElement.before(filterInput);
+        function _injectSelectAll() {
+            var selectAll = $compile(_selectAllInput)(_scope);
+            selectAll.attr("name", "select-all-" + _tableID);
+            _selectAllModel = "selectAll" + _tableID.replace("-", "");
+            selectAll.attr("ng-model", _selectAllModel);
+            selectAll = $compile(selectAll)(_scope);
+            angular
+                .element(document.getElementById("select-all-users"))
+                .append(selectAll);
+
+            _scope.$watch(_selectAllModel, _didSelectAll);
         }
 
         function _gridReady() {
             //inject a checkbox that selects everything into the div we placed in the header
             if (_doesNeedSelectAll) {
-                var selectAll = $compile(_selectAllInput)(_scope);
-                angular
-                    .element(document.getElementById("select-all-users"))
-                    .append(selectAll);
+                _injectSelectAll();
             }
 
             if (_doesNeedQuickFilter) {

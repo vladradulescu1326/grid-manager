@@ -1,4 +1,4 @@
-angular.module('gridManager',[]).service(function() {
+angular.module('gridManager',[]).service('gridManager', function() {
 
     var self = this;
 
@@ -76,13 +76,13 @@ angular.module('gridManager',[]).service(function() {
         }
 
         function _addDefaults() {
-            _gridOptions.enableColResize =  false,
-            _gridOptions.rowSelection: 'multiple',
-            _gridOptions.suppressMenuColumnPanel: true,
-            _gridOptions.suppressMenuFilterPanel: false,
-            _gridOptions.suppressMenuMainPanel: true,
-            _gridOptions.suppressContextMenu: true,
-            _gridOptions.enableSorting: true
+            _gridOptions.enableColResize =  false;
+            _gridOptions.rowSelection= 'multiple';
+            _gridOptions.suppressMenuColumnPanel= true;
+            _gridOptions.suppressMenuFilterPanel= false;
+            _gridOptions.suppressMenuMainPanel= true;
+            _gridOptions.suppressContextMenu= true;
+            _gridOptions.enableSorting= true;
         }
 
         function _injectFilter() {

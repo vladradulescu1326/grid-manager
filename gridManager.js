@@ -187,9 +187,9 @@ angular.module('gridManager',[]).service('gridManager', function($compile) {
 
     // API =====================================================================
 
-    self.getManager = function(scope, gridOptions, tableId, doesNeedSelectAll, doesNeedQuickFilter, quickFilterPlaceHolder, customOptions) {
+    self.getManager = function(gridOptions, config, customOptions) {
 
-        return new GridManager(scope, gridOptions, tableId, doesNeedSelectAll, doesNeedQuickFilter, quickFilterPlaceHolder, customOptions);
+        return new GridManager(gridOptions, config, customOptions);
 
     }
 

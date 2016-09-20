@@ -83,6 +83,29 @@ angular.module('gridManager',[]).service('gridManager', function($compile) {
             _changedSelectionCallback = callback;
         }
 
+        self.deselectAll = function() {
+            _ignoreSelectEventFlag = true;
+            _gridOptions.api.deselectAll();
+            _ignoreSelectEventFlag = false;
+        }
+
+        self.updateRow = function(row, data) {
+            if (angular.isDefined(row)) {
+                row.node.data = data;
+                _gridOptions.api.refreshRows([row.node]);
+            } else {
+                _gridOptions.api.addItems([data]);
+            }
+        }
+
+        self.removeRows = function(rows) {
+            if (angular.isDefined(rows)) {
+                _ignoreSelectEventFlag = true;
+                _gridOptions.api.removeItems(rows);
+                _ignoreSelectEventFlag = false;
+            }
+        }
+
         // PRIVATE FUNCTIONS ===================================================
 
         function _didSelectAll() {

@@ -106,6 +106,14 @@ angular.module('gridManager',[]).service('gridManager', function($compile) {
             }
         }
 
+        self.removeRow = function(rows) {
+            if (angular.isDefined(row)) {
+                _ignoreSelectEventFlag = true;
+                _gridOptions.api.removeItems([row.node]);
+                _ignoreSelectEventFlag = false;
+            }
+        }
+
         // PRIVATE FUNCTIONS ===================================================
 
         function _didSelectAll() {

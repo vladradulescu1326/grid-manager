@@ -1,6 +1,6 @@
 {
   "name": "md-grid-manager",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Common action wrapper for ag-grid",
   "main": "gridManager.js",
   "author": "Catalin Mustata",

@@ -150,7 +150,7 @@ angular.module('gridManager',[]).service('gridManager', function($compile) {
 
             var filterInput = angular.element(_filterTemplate);
             var tableFilterID = "filter-table-" + _tableID;
-            var searchModel = "searchText" + _tableID.replace("-", "");
+            var searchModel = "searchText" + _tableID.replace(/-/g, "");
             filterInput.attr('id', tableFilterID);
             filterInput.attr('ng-model', searchModel);
             filterInput.attr('placeholder', _quickFilterPlaceHolder);
@@ -166,7 +166,7 @@ angular.module('gridManager',[]).service('gridManager', function($compile) {
         function _injectSelectAll() {
             var selectAll = $compile(_selectAllInput)(_scope);
             selectAll.attr("name", "select-all-" + _tableID);
-            _selectAllModel = "selectAll" + _tableID.replace("-", "");
+            _selectAllModel = "selectAll" + _tableID.replace(/-/g, "");
             selectAll.attr("ng-model", _selectAllModel);
             selectAll = $compile(selectAll)(_scope);
             angular

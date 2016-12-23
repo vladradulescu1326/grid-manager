@@ -120,9 +120,7 @@ angular.module('gridManager',[]).service('gridManager', function($compile) {
             _ignoreSelectEventFlag = true;
             var selected = _scope[_selectAllModel];
             if (selected) {
-              _gridOptions.api.forEachNodeAfterFilter(function(node) {
-                  node.setSelected(true);
-              });
+                _gridOptions.api.selectAll();
             } else {
                 _ignoreSelectEventFlag = true;
                 _gridOptions.api.deselectAll();

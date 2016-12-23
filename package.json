@@ -1,8 +1,8 @@
 {
   "name": "md-grid-manager",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Common action wrapper for ag-grid",
   "main": "gridManager.js",
-  "author": "Catalin Mustata",
+  "author": "Vlad Radulescu",
   "license": "GPL-3.0"
 }
